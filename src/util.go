@@ -4,7 +4,6 @@ import (
 	"errors"
 	"log"
 	"net/http"
-	"time"
 )
 
 // Get Http请求
@@ -34,9 +33,7 @@ func Get(url string, params map[string]string, headers map[string]string) (*http
 		}
 	}
 	//http client
-	client := &http.Client{
-		Timeout: 30 * time.Second,
-	}
+	client := &http.Client{}
 	log.Printf("Go %s URL : %s \n", http.MethodGet, req.URL.String())
 	return client.Do(req)
 }
