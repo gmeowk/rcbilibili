@@ -4,15 +4,19 @@ import (
 	"flag"
 	"os"
 	"path/filepath"
+	"rebilibili/src/models"
 	"strings"
 	"sync"
 	"time"
 )
 
+const baseaddress string = "https://api.live.bilibili.com/"
+
 var wg sync.WaitGroup
 var roomid string
 var tran bool
 var basefilepath string
+var jobChan = make(chan models.TranscodeJob, 100)
 
 func main() {
 	wd, _ := os.Getwd()
@@ -26,10 +30,15 @@ func main() {
 			if v != "" {
 				wg.Add(1)
 				if tran {
+					go Worker(jobChan)
 					pat := filepath.Join(basefilepath, v, "*.flv")
 					files, _ := filepath.Glob(pat)
 					for _, f := range files {
-						go Transcode(f)
+						job := &models.TranscodeJob{}
+						job.InputPath = f
+						go func() {
+							jobChan <- *job
+						}()
 					}
 				}
 				go start(v)

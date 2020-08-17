@@ -5,16 +5,14 @@ import (
 	"log"
 	"os"
 	"path"
-	"runtime"
-	"strings"
+	"rebilibili/src/models"
+	"rebilibili/src/utils"
 	"time"
-
-	"github.com/xfrr/goffmpeg/transcoder"
 )
 
 //Recorder 开始录制
 func Recorder(url, roomid string) {
-	res, err := Get(url, nil, nil)
+	res, err := utils.Get(url, nil, nil)
 	if err != nil {
 		log.Println(err)
 	}
@@ -33,7 +31,11 @@ func Recorder(url, roomid string) {
 
 		_, err = io.Copy(out, res.Body)
 		if tran {
-			go Transcode(filefullpath)
+			job := &models.TranscodeJob{}
+			job.InputPath = filefullpath
+			go func() {
+				jobChan <- *job
+			}()
 		}
 		if err != nil {
 			log.Println(err)
@@ -50,17 +52,4 @@ func exists(path string) bool {
 		return false
 	}
 	return true
-}
-
-//Transcode 转码
-func Transcode(filepath string) {
-	trans := new(transcoder.Transcoder)
-	err := trans.Initialize(filepath, path.Join(path.Dir(filepath), strings.TrimSuffix(path.Base(filepath), path.Ext(filepath))+".mp4"))
-	if err != nil {
-		log.Println(err)
-	}
-	trans.MediaFile().SetThreads(runtime.NumCPU())
-	done := trans.Run(false)
-	err = <-done
-	os.Remove(filepath)
 }
