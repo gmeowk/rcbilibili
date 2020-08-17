@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -24,6 +25,13 @@ func main() {
 		for _, v := range roomids {
 			if v != "" {
 				wg.Add(1)
+				if tran {
+					pat := filepath.Join(basefilepath, v, "*.flv")
+					files, _ := filepath.Glob(pat)
+					for _, f := range files {
+						go Transcode(f)
+					}
+				}
 				go start(v)
 			}
 		}

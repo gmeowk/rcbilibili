@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"runtime"
 	"strings"
 	"time"
 
@@ -32,7 +33,7 @@ func Recorder(url, roomid string) {
 
 		_, err = io.Copy(out, res.Body)
 		if tran {
-			go transcode(filefullpath)
+			go Transcode(filefullpath)
 		}
 		if err != nil {
 			log.Println(err)
@@ -51,12 +52,14 @@ func exists(path string) bool {
 	return true
 }
 
-func transcode(filepath string) {
+//Transcode 转码
+func Transcode(filepath string) {
 	trans := new(transcoder.Transcoder)
 	err := trans.Initialize(filepath, path.Join(path.Dir(filepath), strings.TrimSuffix(path.Base(filepath), path.Ext(filepath))+".mp4"))
 	if err != nil {
 		log.Println(err)
 	}
+	trans.MediaFile().SetThreads(runtime.NumCPU())
 	done := trans.Run(false)
 	err = <-done
 	os.Remove(filepath)
