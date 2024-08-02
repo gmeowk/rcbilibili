@@ -8,7 +8,7 @@
 
 ## 使用
 
-根据对应的操作系统及架构，从[Release](https://github.com/zhu6feng/rcbilibili/releases) 页面下载最新版本的程序。
+根据对应的操作系统及架构，从[Release](https://github.com/gmeowk/rcbilibili/releases) 页面下载最新版本的程序。
 
 - 录制111房间的直播，文件保存在程序启动位置
 ```
